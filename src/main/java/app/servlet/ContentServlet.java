@@ -1,5 +1,6 @@
 package app.servlet;
 
+import app.dto.DepartmentDto;
 import app.service.DepartmentService;
 import app.util.JspHelper;
 import jakarta.servlet.ServletException;
@@ -9,17 +10,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-@WebServlet("/departments")
-public class DepartmentServlet extends HttpServlet {
+import static java.util.stream.Collectors.toMap;
+
+@WebServlet("/content")
+public class ContentServlet extends HttpServlet {
     private final DepartmentService departmentService = DepartmentService.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("departments", departmentService.findAll());
-        req.getRequestDispatcher(JspHelper.getPath("departments")).forward(req,resp);
+        List<DepartmentDto> departmentsDto = departmentService.findAll();
+        req.setAttribute("departments", departmentsDto);
+        req.getSession().setAttribute("departmentsMap", departmentsDto.stream()
+                .collect(toMap(DepartmentDto::getId, DepartmentDto::getDescription)));
+        req.getRequestDispatcher(JspHelper.getPath("content")).forward(req, resp);
     }
 }
-

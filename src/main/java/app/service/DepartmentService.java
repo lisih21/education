@@ -13,18 +13,19 @@ public class DepartmentService {
     private DepartmentService() {
     }
 
-    public static DepartmentService getINSTANCE() {
+    public static DepartmentService getInstance() {
         return INSTANCE;
     }
 
     public List<DepartmentDto> findAll() {
         return departmentDao.findAll().stream()
-                .map(department -> new DepartmentDto(
-                        department.getId(),
-                        String.format("%s - %s - %s",
+                .map(department -> DepartmentDto.builder()
+                        .id(department.getId())
+                        .description(String.format("%s - %s - %s",
                                 department.getName(),
                                 department.getId(),
-                                department.getStatus())))
+                                department.getStatus()))
+                        .build())
                 .collect(Collectors.toList());
     }
 }

@@ -1,10 +1,13 @@
 package app.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public final class PropertiesUtil {
+@UtilityClass
+public  class PropertiesUtil {
     private static final Properties PROPERTIES = new Properties();
 
     static {
@@ -13,9 +16,6 @@ public final class PropertiesUtil {
 
     public static String get(String key) {
         return PROPERTIES.getProperty(key);
-    }
-
-    private PropertiesUtil() {
     }
 
     private static void loadProperties() {

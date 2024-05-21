@@ -20,11 +20,12 @@ public class EmployeeService {
 
     public List<EmployeeDto> findAllByDepartmentId(Integer departmentId) {
         return employeeDao.findAllByDepartmentId(departmentId).stream()
-                .map(employee -> new EmployeeDto(
-                            employee.getId(),
-                            String.format("%s  %s",
-                                    employee.getFirstName(),
-                                    employee.getLastName())))
+                .map(employee -> EmployeeDto.builder()
+                        .id(employee.getId())
+                        .description(String.format("%s  %s",
+                                employee.getFirstName(),
+                                employee.getLastName()))
+                        .build())
                 .collect(Collectors.toList());
     }
 }
