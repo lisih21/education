@@ -11,6 +11,8 @@
     <title>Title</title>
 </head>
 <body>
+<img  src="${pageContext.request.contextPath}/image/form/addLogin.jpg" alt= "User image"> <br>
+
 <label style="color: darkviolet"> I am login page </label>
 </body>
 </html>
