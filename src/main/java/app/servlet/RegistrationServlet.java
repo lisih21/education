@@ -24,6 +24,7 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         req.setAttribute("roles", Role.values());
         req.setAttribute("genders", Gender.values());
         req.getRequestDispatcher(JspHelper.getPath("registration"))

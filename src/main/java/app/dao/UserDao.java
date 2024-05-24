@@ -1,5 +1,7 @@
 package app.dao;
 
+import app.entity.Gender;
+import app.entity.Role;
 import app.entity.User;
 import app.util.ConnectionManager;
 import lombok.SneakyThrows;
@@ -15,7 +17,11 @@ public class UserDao implements Dao<Integer, User> {
     private String SAVE_SQL = "insert into users(name, birthday, email, password, role, gender, image) values " +
             "(?, ?, ?, ?, ?, ?, ?)";
 
-    private static final String CHECK_EMAIL = "select * from users where email = ?";
+    private String GET_BY_EMAIL_AND_PASSWORD_SQL = "select  id, name, birthday, email, password, role, gender, image " +
+            "from users where email = ? and password = ?";
+
+    private static final String CHECK_EMAIL_SQL = "select id, name, birthday, email, password, role, gender, image " +
+            "from users where email = ?";
     private static Logger logger = Logger.getLogger(UserDao.class.getName());
 
     public static UserDao getInstance() {
@@ -42,7 +48,6 @@ public class UserDao implements Dao<Integer, User> {
 
     @Override
     public void update(User entity) {
-
     }
 
     @Override
@@ -70,13 +75,41 @@ public class UserDao implements Dao<Integer, User> {
     }
 
     @SneakyThrows
+    public Optional<User> findByEmailAndPassword(String email, String password) {
+        try (Connection connection = ConnectionManager.get();
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_BY_EMAIL_AND_PASSWORD_SQL)) {
+            preparedStatement.setObject(1, email);
+            preparedStatement.setObject(2, password);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            User user = null;
+            if (resultSet.next()) {
+                user = biuldEntity(resultSet);
+            }
+            return Optional.ofNullable(user);
+        }
+    }
+
+    @SneakyThrows
     public boolean containsDuplicateEmail(String email) {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement(CHECK_EMAIL, Statement.RETURN_GENERATED_KEYS)) {
+                     .prepareStatement(CHECK_EMAIL_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setObject(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet.next();
         }
+    }
+
+    private static User biuldEntity(ResultSet resultSet) throws SQLException {
+        return User.builder()
+                .id(resultSet.getObject("id", Integer.class))
+                .name(resultSet.getObject("name", String.class))
+                .birthday(resultSet.getObject("birthday", Date.class).toLocalDate())
+                .image(resultSet.getObject("image", String.class))
+                .email(resultSet.getObject("email", String.class))
+                .password(resultSet.getObject("password", String.class))
+                .role(Role.find(resultSet.getObject("role", String.class)).orElse(null))
+                .gender(Gender.valueOf(resultSet.getObject("gender", String.class)))
+                .build();
     }
 }
